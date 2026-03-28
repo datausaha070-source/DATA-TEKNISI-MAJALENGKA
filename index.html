@@ -5,6 +5,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Data Teknisi Majalengka</title>
 
+<!-- FIREBASE -->
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+
 <style>
 body {
     font-family: Arial, sans-serif;
@@ -12,7 +16,6 @@ body {
     background: #eef1f5;
 }
 
-/* HEADER */
 header {
     background: linear-gradient(135deg, #2196F3, #00c853);
     color: white;
@@ -22,12 +25,10 @@ header {
     font-weight: bold;
 }
 
-/* CONTAINER */
 .container {
     padding: 15px;
 }
 
-/* TOP BAR */
 .topbar {
     display: flex;
     gap: 10px;
@@ -48,15 +49,18 @@ button {
     border: none;
     padding: 10px 15px;
     border-radius: 8px;
+    cursor: pointer;
 }
 
-/* GRID */
+.logout {
+    background: #f44336;
+}
+
 .grid {
     display: grid;
     gap: 15px;
 }
 
-/* CARD */
 .card {
     background: white;
     border-radius: 15px;
@@ -79,7 +83,6 @@ button {
     margin-top: 5px;
 }
 
-/* BUTTON */
 .actions {
     display: flex;
     gap: 10px;
@@ -96,11 +99,8 @@ button {
 }
 
 .wa { background: #25D366; }
-.detail {
-    background: #ff5722;
-}
+.detail { background: #ff5722; }
 
-/* DESKTOP */
 @media(min-width:768px){
     .grid {
         grid-template-columns: repeat(2, 1fr);
@@ -118,9 +118,8 @@ button {
 <div class="container">
 
 <div class="topbar">
-    <button onclick="window.open('https://forms.gle/2GLPHQdLkQJaTvnh7')">
-        ➕ Tambah Data
-    </button>
+    <button id="btnTambah" onclick="cekLogin()">➕ Tambah Data</button>
+    <button id="btnLogout" class="logout" onclick="logout()" style="display:none;">Logout</button>
 
     <input type="text" id="search" placeholder="🔍 Cari teknisi...">
 
@@ -136,11 +135,52 @@ button {
 </div>
 
 <script>
+// 🔥 FIREBASE CONFIG
+const firebaseConfig = {
+    apiKey: "AIzaSyBrSk6ZyoxvKAEQFFkEHMT-PenWSSsFSdQ",
+    authDomain: "ic-reference-teknisi.firebaseapp.com",
+    projectId: "ic-reference-teknisi",
+    storageBucket: "ic-reference-teknisi.appspot.com",
+    messagingSenderId: "376962038194",
+    appId: "1:376962038194:web:fa8475c2e097f5e0548cab"
+};
+
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+
+// 🔐 CEK LOGIN
+function cekLogin(){
+    if(auth.currentUser){
+        window.open("https://forms.gle/2GLPHQdLkQJaTvnh7");
+    }else{
+        window.location.href = "login.html";
+    }
+}
+
+// 🔓 LOGOUT
+function logout(){
+    auth.signOut().then(()=>{
+        alert("Logout berhasil");
+        location.reload();
+    });
+}
+
+// 🔄 AUTO DETECT LOGIN
+auth.onAuthStateChanged(user => {
+    if(user){
+        document.getElementById("btnLogout").style.display = "inline-block";
+    }else{
+        document.getElementById("btnLogout").style.display = "none";
+    }
+});
+
+// ================= DATA =================
+
 const sheetURL = "https://docs.google.com/spreadsheets/d/19AfachAS9ZyNuut61RB1wqyI_AI6BsmNT1SIWhmSIn8/gviz/tq?tqx=out:csv&sheet=DATA%20TEKNISI";
 
 let allData = [];
 
-// ✅ PARSER FIX (BERSIH & AMAN)
+// PARSER
 function parseCSV(text) {
     const rows = [];
     let row = [];
@@ -167,7 +207,6 @@ function parseCSV(text) {
         }
     }
 
-    // ambil baris terakhir
     if (current !== '' || row.length > 0) {
         row.push(current);
         rows.push(row);
@@ -181,8 +220,6 @@ fetch(sheetURL)
 .then(res => res.text())
 .then(csv => {
     let rows = parseCSV(csv);
-
-    // hapus header
     rows.shift();
 
     allData = rows.map(r => ({
@@ -194,8 +231,6 @@ fetch(sheetURL)
         maps: (r[6] || "").replace(/"/g, "").trim()
     }));
 
-    console.log("DATA MASUK:", allData.length);
-
     render(allData);
 });
 
@@ -205,7 +240,7 @@ function render(data){
     container.innerHTML = "";
 
     data.forEach(d => {
-        if(!d.nama || d.nama.trim() === "") return;
+        if(!d.nama) return;
 
         let wa = (d.wa || "").replace(/[^0-9]/g, "").replace(/^0/, "62");
 
@@ -228,7 +263,7 @@ function render(data){
     });
 }
 
-// SEARCH + FILTER
+// FILTER
 document.getElementById("search").addEventListener("input", applyFilter);
 document.getElementById("filter").addEventListener("change", applyFilter);
 
