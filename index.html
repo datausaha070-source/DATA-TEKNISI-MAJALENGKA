@@ -147,9 +147,12 @@ function parseCSV(text) {
     let current = '';
     let insideQuotes = false;
 
-    for (let char of text) {
-        if (char === '"') insideQuotes = !insideQuotes;
-        else if (char === ',' && !insideQuotes) {
+    for (let i = 0; i < text.length; i++) {
+        let char = text[i];
+
+        if (char === '"') {
+            insideQuotes = !insideQuotes;
+        } else if (char === ',' && !insideQuotes) {
             row.push(current);
             current = '';
         } else if (char === '\n' && !insideQuotes) {
@@ -161,9 +164,15 @@ function parseCSV(text) {
             current += char;
         }
     }
+
+    // 🔥 INI YANG PENTING (AMBIL BARIS TERAKHIR)
+    if (current.length > 0) {
+        row.push(current);
+        rows.push(row);
+    }
+
     return rows;
 }
-
 // LOAD DATA
 fetch(sheetURL)
 .then(res => res.text())
