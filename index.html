@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Data Teknisi Majalengka</title>
+
+<style>
+body {
+    font-family: Arial, sans-serif;
+    background: #eef1f5;
+    margin: 0;
+}
+
+/* HEADER */
+header {
+    background: linear-gradient(135deg, #2196F3, #4CAF50);
+    color: white;
+    padding: 20px;
+    text-align: center;
+    font-size: 22px;
+    font-weight: bold;
+}
+
+/* CONTAINER */
+.container {
+    padding: 15px;
+}
+
+/* ACTION BAR */
+.actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 15px;
+}
+
+button {
+    background: #2196F3;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+input {
+    flex: 1;
+    padding: 10px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+}
+
+/* TABLE */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+}
+
+th, td {
+    padding: 10px;
+    border: 1px solid #ddd;
+    font-size: 14px;
+}
+
+th {
+    background: #333;
+    color: white;
+}
+
+tr:nth-child(even) {
+    background: #f2f2f2;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+📱 DATA TEKNISI MAJALENGKA
+</header>
+
+<div class="container">
+
+<div class="actions">
+    <button onclick="window.open('https://forms.gle/2GLPHQdLkQJaTvnh7')">
+        ➕ Tambah Data
+    </button>
+
+    <input type="text" id="search" placeholder="🔍 Cari nama, alamat, bidang...">
+</div>
+
+<table>
+<thead>
+<tr>
+<th>Nama</th>
+<th>Alamat</th>
+<th>Bidang</th>
+<th>WhatsApp</th>
+<th>Sosmed</th>
+</tr>
+</thead>
+<tbody id="tableBody"></tbody>
+</table>
+
+</div>
+
+<script>
+const sheetURL = "https://docs.google.com/spreadsheets/d/19AfachAS9ZyNuut61RB1wqyI_AI6BsmNT1SIWhmSIn8/export?format=csv";
+
+let allData = [];
+
+fetch(sheetURL)
+.then(res => res.text())
+.then(data => {
+    const rows = data.split("\n").slice(1);
+
+    allData = rows.map(row => {
+        const cols = row.split(",");
+        return {
+            nama: cols[1],
+            alamat: cols[2],
+            bidang: cols[3],
+            wa: cols[4],
+            sosmed: cols[5]
+        };
+    });
+
+    renderTable(allData);
+});
+
+// RENDER DATA
+function renderTable(data) {
+    const table = document.getElementById("tableBody");
+    table.innerHTML = "";
+
+    data.forEach(d => {
+        if(!d.nama) return;
+
+        let tr = document.createElement("tr");
+
+        tr.innerHTML = `
+            <td>${d.nama}</td>
+            <td>${d.alamat}</td>
+            <td>${d.bidang}</td>
+            <td><a href="https://wa.me/${d.wa}" target="_blank">${d.wa}</a></td>
+            <td>${d.sosmed}</td>
+        `;
+
+        table.appendChild(tr);
+    });
+}
+
+// SEARCH REALTIME
+document.getElementById("search").addEventListener("input", function() {
+    const keyword = this.value.toLowerCase();
+
+    const filtered = allData.filter(d =>
+        (d.nama && d.nama.toLowerCase().includes(keyword)) ||
+        (d.alamat && d.alamat.toLowerCase().includes(keyword)) ||
+        (d.bidang && d.bidang.toLowerCase().includes(keyword))
+    );
+
+    renderTable(filtered);
+});
+</script>
+
+</body>
+</html>
