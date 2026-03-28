@@ -8,17 +8,17 @@
 <style>
 body {
     font-family: Arial, sans-serif;
-    background: #eef1f5;
     margin: 0;
+    background: #eef1f5;
 }
 
 /* HEADER */
 header {
-    background: linear-gradient(135deg, #2196F3, #4CAF50);
+    background: linear-gradient(135deg, #2196F3, #00c853);
     color: white;
     padding: 20px;
     text-align: center;
-    font-size: 22px;
+    font-size: 20px;
     font-weight: bold;
 }
 
@@ -27,12 +27,19 @@ header {
     padding: 15px;
 }
 
-/* ACTION BAR */
-.actions {
+/* TOP BAR */
+.topbar {
     display: flex;
     gap: 10px;
     flex-wrap: wrap;
     margin-bottom: 15px;
+}
+
+.topbar input, .topbar select {
+    padding: 10px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    flex: 1;
 }
 
 button {
@@ -40,37 +47,62 @@ button {
     color: white;
     border: none;
     padding: 10px 15px;
-    border-radius: 6px;
-    cursor: pointer;
+    border-radius: 8px;
 }
 
-input {
-    flex: 1;
-    padding: 10px;
-    border-radius: 6px;
-    border: 1px solid #ccc;
+/* GRID */
+.grid {
+    display: grid;
+    gap: 15px;
 }
 
-/* TABLE */
-table {
-    width: 100%;
-    border-collapse: collapse;
+/* CARD */
+.card {
     background: white;
+    border-radius: 15px;
+    padding: 15px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
 }
 
-th, td {
+.card h3 {
+    margin: 0;
+    color: #2196F3;
+}
+
+.badge {
+    display: inline-block;
+    background: #4CAF50;
+    color: white;
+    padding: 5px 8px;
+    border-radius: 5px;
+    font-size: 12px;
+    margin-top: 5px;
+}
+
+/* BUTTON */
+.actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.btn {
+    flex: 1;
+    text-align: center;
     padding: 10px;
-    border: 1px solid #ddd;
-    font-size: 14px;
-}
-
-th {
-    background: #333;
+    border-radius: 8px;
+    text-decoration: none;
     color: white;
 }
 
-tr:nth-child(even) {
-    background: #f2f2f2;
+.wa { background: #25D366; }
+.detail { background: #2196F3; }
+
+/* DESKTOP */
+@media(min-width:768px){
+    .grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
 }
 </style>
 </head>
@@ -83,26 +115,21 @@ tr:nth-child(even) {
 
 <div class="container">
 
-<div class="actions">
+<div class="topbar">
     <button onclick="window.open('https://forms.gle/2GLPHQdLkQJaTvnh7')">
         ➕ Tambah Data
     </button>
 
-    <input type="text" id="search" placeholder="🔍 Cari nama, alamat, bidang...">
+    <input type="text" id="search" placeholder="🔍 Cari teknisi...">
+
+    <select id="filter">
+        <option value="">Semua Bidang</option>
+        <option value="android">Android</option>
+        <option value="iphone">iPhone</option>
+    </select>
 </div>
 
-<table>
-<thead>
-<tr>
-<th>Nama</th>
-<th>Alamat</th>
-<th>Bidang</th>
-<th>WhatsApp</th>
-<th>Sosmed</th>
-</tr>
-</thead>
-<tbody id="tableBody"></tbody>
-</table>
+<div id="cards" class="grid"></div>
 
 </div>
 
@@ -111,38 +138,16 @@ const sheetURL = "https://docs.google.com/spreadsheets/d/19AfachAS9ZyNuut61RB1wq
 
 let allData = [];
 
-fetch(sheetURL)
-.then(res => res.text())
-.then(csv => {
-    const rows = parseCSV(csv);
-
-    // HAPUS HEADER
-    rows.shift();
-
-    allData = rows.map(r => ({
-        nama: r[1],
-        alamat: r[2],
-        bidang: r[3],
-        wa: r[4],
-        sosmed: r[5]
-    }));
-
-    renderTable(allData);
-});
-
-// PARSER CSV AMAN (ANTI ERROR KOMA & TANDA KUTIP)
+// CSV PARSER AMAN
 function parseCSV(text) {
     const rows = [];
     let row = [];
     let current = '';
     let insideQuotes = false;
 
-    for (let i = 0; i < text.length; i++) {
-        let char = text[i];
-
-        if (char === '"') {
-            insideQuotes = !insideQuotes;
-        } else if (char === ',' && !insideQuotes) {
+    for (let char of text) {
+        if (char === '"') insideQuotes = !insideQuotes;
+        else if (char === ',' && !insideQuotes) {
             row.push(current);
             current = '';
         } else if (char === '\n' && !insideQuotes) {
@@ -154,46 +159,77 @@ function parseCSV(text) {
             current += char;
         }
     }
-
     return rows;
 }
 
-// RENDER
-function renderTable(data) {
-    const table = document.getElementById("tableBody");
-    table.innerHTML = "";
+// LOAD DATA
+fetch(sheetURL)
+.then(res => res.text())
+.then(csv => {
+    let rows = parseCSV(csv);
+    rows.shift();
+
+    allData = rows.map(r => ({
+        nama: r[1],
+        alamat: r[2],
+        bidang: r[3],
+        wa: r[4],
+        sosmed: r[5]
+    }));
+
+    render(allData);
+});
+
+// RENDER CARD
+function render(data){
+    const container = document.getElementById("cards");
+    container.innerHTML = "";
 
     data.forEach(d => {
-        if (!d.nama) return;
+        if(!d.nama) return;
 
         let wa = (d.wa || "").replace(/^0/, "62");
 
-        let tr = document.createElement("tr");
+        let el = document.createElement("div");
+        el.className = "card";
 
-        tr.innerHTML = `
-            <td>${d.nama}</td>
-            <td>${d.alamat}</td>
-            <td>${d.bidang}</td>
-            <td><a href="https://wa.me/${wa}" target="_blank">${d.wa}</a></td>
-            <td>${d.sosmed}</td>
+        el.innerHTML = `
+            <h3>${d.nama}</h3>
+            <p>📍 ${d.alamat}</p>
+            <p><span class="badge">${d.bidang}</span></p>
+            <p>🌐 ${d.sosmed || "-"}</p>
+
+            <div class="actions">
+                <a class="btn wa" href="https://wa.me/${wa}" target="_blank">💬 WhatsApp</a>
+                <a class="btn detail" href="tel:${d.wa}">📞 Telepon</a>
+            </div>
         `;
 
-        table.appendChild(tr);
+        container.appendChild(el);
     });
 }
 
-// SEARCH
-document.getElementById("search").addEventListener("input", function() {
-    const keyword = this.value.toLowerCase();
+// SEARCH + FILTER
+document.getElementById("search").addEventListener("input", applyFilter);
+document.getElementById("filter").addEventListener("change", applyFilter);
 
-    const filtered = allData.filter(d =>
-        (d.nama && d.nama.toLowerCase().includes(keyword)) ||
-        (d.alamat && d.alamat.toLowerCase().includes(keyword)) ||
-        (d.bidang && d.bidang.toLowerCase().includes(keyword))
-    );
+function applyFilter(){
+    let key = document.getElementById("search").value.toLowerCase();
+    let filter = document.getElementById("filter").value;
 
-    renderTable(filtered);
-});
+    let result = allData.filter(d => {
+        let matchText =
+            (d.nama && d.nama.toLowerCase().includes(key)) ||
+            (d.alamat && d.alamat.toLowerCase().includes(key)) ||
+            (d.bidang && d.bidang.toLowerCase().includes(key));
+
+        let matchFilter = !filter || (d.bidang && d.bidang.toLowerCase().includes(filter));
+
+        return matchText && matchFilter;
+    });
+
+    render(result);
+}
 </script>
 
 </body>
