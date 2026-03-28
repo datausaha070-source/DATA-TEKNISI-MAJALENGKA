@@ -113,30 +113,60 @@ let allData = [];
 
 fetch(sheetURL)
 .then(res => res.text())
-.then(data => {
-    const rows = data.split("\n").slice(1);
+.then(csv => {
+    const rows = parseCSV(csv);
 
-    allData = rows.map(row => {
-        const cols = row.split(",");
-        return {
-            nama: cols[1],
-            alamat: cols[2],
-            bidang: cols[3],
-            wa: cols[4],
-            sosmed: cols[5]
-        };
-    });
+    // HAPUS HEADER
+    rows.shift();
+
+    allData = rows.map(r => ({
+        nama: r[1],
+        alamat: r[2],
+        bidang: r[3],
+        wa: r[4],
+        sosmed: r[5]
+    }));
 
     renderTable(allData);
 });
 
-// RENDER DATA
+// PARSER CSV AMAN (ANTI ERROR KOMA & TANDA KUTIP)
+function parseCSV(text) {
+    const rows = [];
+    let row = [];
+    let current = '';
+    let insideQuotes = false;
+
+    for (let i = 0; i < text.length; i++) {
+        let char = text[i];
+
+        if (char === '"') {
+            insideQuotes = !insideQuotes;
+        } else if (char === ',' && !insideQuotes) {
+            row.push(current);
+            current = '';
+        } else if (char === '\n' && !insideQuotes) {
+            row.push(current);
+            rows.push(row);
+            row = [];
+            current = '';
+        } else {
+            current += char;
+        }
+    }
+
+    return rows;
+}
+
+// RENDER
 function renderTable(data) {
     const table = document.getElementById("tableBody");
     table.innerHTML = "";
 
     data.forEach(d => {
-        if(!d.nama) return;
+        if (!d.nama) return;
+
+        let wa = (d.wa || "").replace(/^0/, "62");
 
         let tr = document.createElement("tr");
 
@@ -144,7 +174,7 @@ function renderTable(data) {
             <td>${d.nama}</td>
             <td>${d.alamat}</td>
             <td>${d.bidang}</td>
-            <td><a href="https://wa.me/${d.wa}" target="_blank">${d.wa}</a></td>
+            <td><a href="https://wa.me/${wa}" target="_blank">${d.wa}</a></td>
             <td>${d.sosmed}</td>
         `;
 
@@ -152,7 +182,7 @@ function renderTable(data) {
     });
 }
 
-// SEARCH REALTIME
+// SEARCH
 document.getElementById("search").addEventListener("input", function() {
     const keyword = this.value.toLowerCase();
 
