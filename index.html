@@ -147,6 +147,9 @@ function parseCSV(text) {
     let current = '';
     let insideQuotes = false;
 
+    // 🔥 NORMALISASI LINE ENDING
+    text = text.replace(/\r/g, '');
+
     for (let i = 0; i < text.length; i++) {
         let char = text[i];
 
@@ -164,6 +167,15 @@ function parseCSV(text) {
             current += char;
         }
     }
+
+    // 🔥 PAKSA MASUKKAN BARIS TERAKHIR
+    if (current !== '' || row.length > 0) {
+        row.push(current);
+        rows.push(row);
+    }
+
+    return rows;
+}
 
     // 🔥 INI YANG PENTING (AMBIL BARIS TERAKHIR)
     if (current.length > 0) {
