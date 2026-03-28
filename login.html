@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Login Teknisi Majalengka</title>
 
-<!-- Firebase -->
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
 
@@ -27,8 +26,8 @@ body{
     background:#1e293b;
     padding:30px 25px;
     border-radius:20px;
-    box-shadow:0 20px 60px rgba(0,0,0,0.5);
     text-align:center;
+    box-shadow:0 20px 60px rgba(0,0,0,0.6);
 }
 
 h2{
@@ -67,16 +66,6 @@ button:hover{
     background:#1d4ed8;
 }
 
-.wa-btn{
-    display:block;
-    margin-top:15px;
-    padding:12px;
-    border-radius:10px;
-    background:#16a34a;
-    color:white;
-    text-decoration:none;
-}
-
 .loading{
     display:none;
     margin-top:10px;
@@ -100,11 +89,54 @@ button:hover{
 
 <div class="loading" id="loading">⏳ Sedang login...</div>
 
-<a href="https://wa.me/6282319264646?text=Saya%20ingin%20daftar%20akun%20teknisi"
-target="_blank" class="wa-btn">
-💬 Daftar / Minta Akses
-</a>
+</div>
 
+<script>
+const firebaseConfig = {
+    apiKey: "AIzaSyBrSk6ZyoxvKAEQFFkEHMT-PenWSSsFSdQ",
+    authDomain: "ic-reference-teknisi.firebaseapp.com",
+    projectId: "ic-reference-teknisi",
+    storageBucket: "ic-reference-teknisi.appspot.com",
+    messagingSenderId: "376962038194",
+    appId: "1:376962038194:web:fa8475c2e097f5e0548cab"
+};
+
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+
+function login(){
+    const email = document.getElementById("email").value;
+    const password = document.getElementById("password").value;
+    const loading = document.getElementById("loading");
+
+    if(email === "" || password === ""){
+        alert("Isi email dan password dulu");
+        return;
+    }
+
+    loading.style.display = "block";
+
+    auth.signInWithEmailAndPassword(email, password)
+    .then(()=>{
+        // langsung ke form
+        window.location.href = "https://forms.gle/2GLPHQdLkQJaTvnh7";
+    })
+    .catch(()=>{
+        loading.style.display = "none";
+        alert("Email atau password salah");
+    });
+}
+
+// auto login
+auth.onAuthStateChanged(user => {
+    if(user){
+        window.location.href = "https://forms.gle/2GLPHQdLkQJaTvnh7";
+    }
+});
+</script>
+
+</body>
+</html>
 </div>
 
 <script>
