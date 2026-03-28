@@ -140,14 +140,13 @@ const sheetURL = "https://docs.google.com/spreadsheets/d/19AfachAS9ZyNuut61RB1wq
 
 let allData = [];
 
-// CSV PARSER AMAN
+// ✅ PARSER FIX (BERSIH & AMAN)
 function parseCSV(text) {
     const rows = [];
     let row = [];
     let current = '';
     let insideQuotes = false;
 
-    // 🔥 NORMALISASI LINE ENDING
     text = text.replace(/\r/g, '');
 
     for (let i = 0; i < text.length; i++) {
@@ -168,7 +167,7 @@ function parseCSV(text) {
         }
     }
 
-    // 🔥 PAKSA MASUKKAN BARIS TERAKHIR
+    // ambil baris terakhir
     if (current !== '' || row.length > 0) {
         row.push(current);
         rows.push(row);
@@ -177,42 +176,38 @@ function parseCSV(text) {
     return rows;
 }
 
-    // 🔥 INI YANG PENTING (AMBIL BARIS TERAKHIR)
-    if (current.length > 0) {
-        row.push(current);
-        rows.push(row);
-    }
-
-    return rows;
-}
 // LOAD DATA
 fetch(sheetURL)
 .then(res => res.text())
 .then(csv => {
     let rows = parseCSV(csv);
+
+    // hapus header
     rows.shift();
 
     allData = rows.map(r => ({
-    nama: (r[1] || "").replace(/"/g, "").trim(),
-    alamat: (r[2] || "").replace(/"/g, "").trim(),
-    bidang: (r[3] || "").replace(/"/g, "").trim(),
-    wa: (r[4] || "").replace(/"/g, "").trim(),
-    sosmed: (r[5] || "").replace(/"/g, "").trim(),
-    maps: (r[6] || "").replace(/"/g, "").trim()
-}));
-    console.log(allData);
+        nama: (r[1] || "").replace(/"/g, "").trim(),
+        alamat: (r[2] || "").replace(/"/g, "").trim(),
+        bidang: (r[3] || "").replace(/"/g, "").trim(),
+        wa: (r[4] || "").replace(/"/g, "").trim(),
+        sosmed: (r[5] || "").replace(/"/g, "").trim(),
+        maps: (r[6] || "").replace(/"/g, "").trim()
+    }));
+
+    console.log("DATA MASUK:", allData.length);
+
     render(allData);
 });
 
-// RENDER CARD
+// RENDER
 function render(data){
     const container = document.getElementById("cards");
     container.innerHTML = "";
 
     data.forEach(d => {
-        if(!d.nama || d.nama.length < 2) return;
+        if(!d.nama || d.nama.trim() === "") return;
 
-let wa = (d.wa || "").replace(/[^0-9]/g, "").replace(/^0/, "62");
+        let wa = (d.wa || "").replace(/[^0-9]/g, "").replace(/^0/, "62");
 
         let el = document.createElement("div");
         el.className = "card";
@@ -225,9 +220,7 @@ let wa = (d.wa || "").replace(/[^0-9]/g, "").replace(/^0/, "62");
 
             <div class="actions">
                 <a class="btn wa" href="https://wa.me/${wa}" target="_blank">💬 WhatsApp</a>
-                <a class="btn detail" href="${d.maps || '#'}" target="_blank">
-📍 Rute
-</a>
+                <a class="btn detail" href="${d.maps || '#'}" target="_blank">📍 Rute</a>
             </div>
         `;
 
