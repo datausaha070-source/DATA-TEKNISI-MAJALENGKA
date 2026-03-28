@@ -96,7 +96,9 @@ button {
 }
 
 .wa { background: #25D366; }
-.detail { background: #2196F3; }
+.detail {
+    background: #ff5722;
+}
 
 /* DESKTOP */
 @media(min-width:768px){
@@ -170,12 +172,13 @@ fetch(sheetURL)
     rows.shift();
 
     allData = rows.map(r => ({
-        nama: r[1],
-        alamat: r[2],
-        bidang: r[3],
-        wa: r[4],
-        sosmed: r[5]
-    }));
+    nama: r[1],
+    alamat: r[2],
+    bidang: r[3],
+    wa: r[4],
+    sosmed: r[5],
+    maps: r[6] // kolom baru
+}));
 
     render(allData);
 });
@@ -201,7 +204,9 @@ function render(data){
 
             <div class="actions">
                 <a class="btn wa" href="https://wa.me/${wa}" target="_blank">💬 WhatsApp</a>
-                <a class="btn detail" href="tel:${d.wa}">📞 Telepon</a>
+                <a class="btn detail" href="${d.maps || '#'}" target="_blank">
+📍 Rute
+</a>
             </div>
         `;
 
