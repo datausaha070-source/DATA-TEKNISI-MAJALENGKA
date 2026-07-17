@@ -10,109 +10,76 @@
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
 
 <style>
-body {
-    font-family: Arial, sans-serif;
-    margin: 0;
-    background: #eef1f5;
-}
-
-header {
-    background: linear-gradient(135deg, #2196F3, #00c853);
-    color: white;
-    padding: 20px;
-    text-align: center;
-    font-size: 20px;
-    font-weight: bold;
-}
-
-.container {
-    padding: 15px;
-}
-
-.topbar {
-    display: flex;
-    gap: 10px;
-    flex-wrap: wrap;
-    margin-bottom: 15px;
-}
-
-.topbar input, .topbar select {
-    padding: 10px;
-    border-radius: 8px;
-    border: 1px solid #ccc;
-    flex: 1;
-}
-
-button {
-    background: #2196F3;
-    color: white;
-    border: none;
-    padding: 10px 15px;
-    border-radius: 8px;
-    cursor: pointer;
-}
-
-.logout {
-    background: #f44336;
-}
-
-.grid {
-    display: grid;
-    gap: 15px;
-}
-
-.card {
-    background: white;
-    border-radius: 15px;
-    padding: 15px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-}
-
-.card h3 {
-    margin: 0;
-    color: #2196F3;
-}
-
-.badge {
-    display: inline-block;
-    background: #4CAF50;
-    color: white;
-    padding: 5px 8px;
-    border-radius: 5px;
-    font-size: 12px;
-    margin-top: 5px;
-}
-
-.actions {
-    display: flex;
-    gap: 10px;
-    margin-top: 10px;
-}
-
-.btn {
-    flex: 1;
-    text-align: center;
-    padding: 10px;
-    border-radius: 8px;
-    text-decoration: none;
-    color: white;
-}
-
-.wa { background: #25D366; }
-.detail { background: #ff5722; }
-
-@media(min-width:768px){
-    .grid {
-        grid-template-columns: repeat(2, 1fr);
-    }
-}
+*{box-sizing:border-box}
+body{font-family:Arial,Helvetica,sans-serif;margin:0;background:#eef3f8;color:#333}
+header{
+background:linear-gradient(135deg,#0D47A1,#1976D2);
+color:#fff;padding:28px 20px;text-align:center;
+font-size:30px;font-weight:bold;
+box-shadow:0 6px 18px rgba(0,0,0,.15)}
+.container{max-width:1200px;margin:auto;padding:18px}
+.topbar{
+display:flex;gap:12px;flex-wrap:wrap;
+background:#fff;padding:16px;
+border-radius:18px;
+box-shadow:0 6px 18px rgba(0,0,0,.08);
+margin-bottom:20px}
+.topbar input,.topbar select{
+flex:1;min-width:220px;
+padding:13px 15px;
+border:1px solid #d7d7d7;
+border-radius:12px;
+font-size:15px}
+.topbar input:focus,.topbar select:focus{
+outline:none;border-color:#1976D2;
+box-shadow:0 0 0 3px rgba(25,118,210,.15)}
+button{
+background:#1976D2;color:#fff;
+border:none;border-radius:12px;
+padding:12px 18px;
+font-weight:bold;cursor:pointer;
+transition:.2s}
+button:hover{transform:translateY(-2px)}
+.logout{background:#d32f2f}
+.grid{display:grid;gap:18px}
+.card{
+background:#fff;
+border-radius:18px;
+padding:18px;
+border-top:5px solid #1976D2;
+box-shadow:0 8px 22px rgba(0,0,0,.08);
+transition:.2s}
+.card:hover{transform:translateY(-3px)}
+.card h3{margin:0;color:#0D47A1;font-size:20px}
+.card p{margin:8px 0;line-height:1.5}
+.badge{
+display:inline-block;
+background:#E3F2FD;
+color:#1565C0;
+padding:6px 12px;
+border-radius:30px;
+font-size:12px;
+font-weight:bold}
+.actions{display:flex;gap:10px;margin-top:14px}
+.btn{
+flex:1;
+text-align:center;
+padding:12px;
+border-radius:12px;
+text-decoration:none;
+font-weight:bold;
+color:#fff}
+.wa{background:#25D366}
+.detail{background:#1976D2}
+@media(min-width:768px){.grid{grid-template-columns:repeat(2,1fr)}}
+@media(min-width:1100px){.grid{grid-template-columns:repeat(3,1fr)}}
 </style>
 </head>
 
 <body>
 
 <header>
-📱 DATA TEKNISI MAJALENGKA
+📱 DATA TEKNISI HP MAJALENGKA
 </header>
 
 <div class="container">
